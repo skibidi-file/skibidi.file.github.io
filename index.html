@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>.skibidi Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    /* General Styling */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      background: url('https://i.guim.co.uk/img/media/9f27b0ee9699d24b9af43cb2b806e34360b4871a/235_161_2056_1235/master/2056.jpg?width=1200&quality=85&auto=format&fit=max&s=d7e97e2ee56db82cde1d2369f49c685f') no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      overflow: hidden;
+      animation: fadeIn 1s ease-out;
+    }
+
+    /* Blur Effect for Background */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(10px);
+      z-index: 0;
+    }
+
+    /* Top Bar */
+    #top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #444;
+      padding: 15px 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      opacity: 0;
+      animation: fadeIn 1s ease-out forwards 0.5s;
+    }
+
+    #top-bar h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: white;
+    }
+
+    /* Centered Container */
+    #converter-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+      opacity: 0;
+      animation: slideUp 1s ease-out forwards 0.5s;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      animation: fadeInText 1s ease-out forwards 0.5s;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    /* Custom File Label */
+    #file-label {
+      display: inline-block;
+      background-color: #444;
+      color: white;
+      padding: 15px 30px;
+      font-size: 20px;
+      font-weight: 500;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+      margin: 20px auto;
+      animation: fadeInText 1s ease-out forwards 0.5s;
+    }
+
+    #file-label:hover {
+      background-color: #666;
+      transform: scale(1.1);
+    }
+
+    /* Buttons */
+    button {
+      display: block;
+      margin: 20px auto 0;
+      background-color: #ffa500;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 20px;
+      font-weight: 500;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+      animation: fadeInText 1s ease-out forwards 0.5s;
+    }
+
+    button:hover {
+      background-color: #ff8c00;
+      transform: scale(1.1);
+    }
+
+    button.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    /* Progress Bar */
+    #progress-container {
+      display: none;
+      margin-top: 30px;
+      width: 100%;
+      animation: fadeInText 1s ease-out forwards 0.5s;
+    }
+
+    #progress-bar-wrapper {
+      background-color: #333;
+      border-radius: 8px;
+      width: 100%;
+      height: 12px;
+    }
+
+    #progress-bar {
+      width: 0%;
+      height: 12px;
+      background-color: #ffa500;
+      border-radius: 8px;
+      transition: width 0.4s;
+    }
+
+    /* Keyframe Animations */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 60%);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    @keyframes fadeInText {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div id="top-bar">
+    <h2>.skibidi Converter</h2>
+  </div>
+
+  <!-- Centered Converter Container -->
+  <div id="converter-container">
+    <h1>.skibidi File Converter</h1>
+    <label id="file-label" for="file-input">Choose a File</label>
+    <input type="file" id="file-input" accept=".txt,.skibidi">
+    <button id="convert-button" class="hidden">Convert</button>
+
+    <div id="progress-container">
+      <p>Converting...</p>
+      <div id="progress-bar-wrapper">
+        <div id="progress-bar"></div>
+      </div>
+    </div>
+
+    <button id="download-button" class="hidden">Download Converted File</button>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('file-input');
+    const fileLabel = document.getElementById('file-label');
+    const convertButton = document.getElementById('convert-button');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+    const downloadButton = document.getElementById('download-button');
+
+    let uploadedFile;
+    let isSkibidiFile = false;
+
+    // Show Convert Button When File is Selected
+    fileInput.addEventListener('change', (event) => {
+      uploadedFile = event.target.files[0];
+      if (uploadedFile) {
+        if (uploadedFile.type === 'text/plain') {
+          convertButton.classList.remove('hidden');
+          fileLabel.textContent = uploadedFile.name;
+          isSkibidiFile = false;
+        } else if (uploadedFile.name.endsWith('.skibidi')) {
+          convertButton.classList.remove('hidden');
+          fileLabel.textContent = uploadedFile.name;
+          isSkibidiFile = true;
+        } else {
+          convertButton.classList.add('hidden');
+          fileLabel.textContent = 'Choose a File';
+          isSkibidiFile = false;
+        }
+      }
+    });
+
+    convertButton.addEventListener('click', () => {
+      if (!uploadedFile) return;
+
+      // Hide button and show progress
+      convertButton.classList.add('hidden');
+      progressContainer.style.display = 'block';
+
+      // Simulate conversion process
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 10;
+        progressBar.style.width = progress + '%';
+
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            progressContainer.style.display = 'none';
+            showDownloadButton();
+          }, 500);
+        }
+      }, 300);
+    });
+
+    function showDownloadButton() {
+      if (uploadedFile) {
+        downloadButton.classList.remove('hidden');
+        downloadButton.addEventListener('click', downloadConvertedFile);
+      }
+    }
+
+    function downloadConvertedFile() {
+      const reader = new FileReader();
+      reader.onload = () => {
+        let convertedContent;
+
+        if (isSkibidiFile) {
+          // Convert .skibidi back to .txt (reverting changes)
+          convertedContent = reader.result.replace(/skibidi/g, 'txt');
+          const newFileName = uploadedFile.name.replace('.skibidi', '.txt');
+          downloadFile(convertedContent, newFileName);
+        } else {
+          // Convert .txt to .skibidi
+          convertedContent = reader.result.replace(/txt/g, 'skibidi');
+          const newFileName = uploadedFile.name.replace('.txt', '.skibidi');
+          downloadFile(convertedContent, newFileName);
+        }
+      };
+      reader.readAsText(uploadedFile);
+    }
+
+    function downloadFile(content, fileName) {
+      const blob = new Blob([content], { type: 'text/plain' });
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(blob);
+      downloadLink.download = fileName;
+      downloadLink.click();
+
+      // Reset the form and redirect to homepage after downloading
+      setTimeout(() => {
+        window.location.reload(); // Go back to homepage
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
